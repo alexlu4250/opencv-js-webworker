@@ -1,6 +1,6 @@
 {
   "name": "opencv-web",
-  "homepage": "http://vinissimus.github.io/opencv-js-webworker",
+  "homepage": "http://alexlu4250.github.io/opencv-js-webworker",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "gh-pages": "^2.2.0",
-    "next": "9.3.6",
-    "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "next": "^12.0.7",
+    "react": "^17.0.2",
+    "react-dom": "^16.14.0"
   }
 }

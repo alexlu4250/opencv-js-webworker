@@ -1,13 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
 import cv from '../services/cv'
 
+import './index.css'
+import Image from 'next/image'
+
 // We'll limit the processing size to 200px.
-const maxVideoSize = 200
+const maxVideoWidth = 800
+const maxVideoHeight = 600
 
 export default function Page() {
   const [processing, setProcessing] = useState(false)
   const videoElement = useRef(null)
   const canvasEl = useRef(null)
+
+  async function processImage() {
+    setProcessing(true)
+
+    const ctx = canvasEl.current.getContext('2d')
+    ctx.drawImage(videoElement.current, 0, 0, maxVideoWidth, maxVideoHeight)
+    const image = ctx.getImageData(0, 0, maxVideoWidth, maxVideoHeight)
+    // Load the model
+    await cv.load()
+    // Processing image
+    const processedImage = await cv.imageProcessing(image)
+    // Render the processed image to the canvas
+    ctx.putImageData(processedImage.data.payload, 0, 0)
+    setProcessing(false)
+  }
 
   /**
    * What we will do in the onClick event is capture a frame within
@@ -16,16 +35,12 @@ export default function Page() {
   async function onClick() {
     setProcessing(true)
 
-    const ctx = canvasEl.current.getContext('2d')
-    ctx.drawImage(videoElement.current, 0, 0, maxVideoSize, maxVideoSize)
-    const image = ctx.getImageData(0, 0, maxVideoSize, maxVideoSize)
-    // Load the model
-    await cv.load()
-    // Processing image
-    const processedImage = await cv.imageProcessing(image)
-    // Render the processed image to the canvas
-    ctx.putImageData(processedImage.data.payload, 0, 0)
-    setProcessing(false)
+    const videoCtx = canvasEl.current.getContext('2d');
+    videoCtx.ontimeupdate = (event) => {
+      console.log('The currentTime attribute has been updated. Again.');
+    };
+
+    this.processImage();
   }
 
   /**
@@ -37,16 +52,16 @@ export default function Page() {
    */
   useEffect(() => {
     async function setupCamera() {
-      videoElement.current.width = maxVideoSize
-      videoElement.current.height = maxVideoSize
+      videoElement.current.width = maxVideoWidth
+      videoElement.current.height = maxVideoHeight
 
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
             facingMode: 'user',
-            width: maxVideoSize,
-            height: maxVideoSize,
+            width: maxVideoWidth,
+            height: maxVideoHeight,
           },
         })
         videoElement.current.srcObject = stream
@@ -90,22 +105,26 @@ export default function Page() {
       style={{
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'center', 
         flexDirection: 'column',
       }}
     >
-      <video className="video" playsInline ref={videoElement} />
+      <div className="video-wrapper">
+        <video className="video" playsInline ref={videoElement} />
+        <Image src="/tiger.jpg" alt="Avatar" className="image" width={maxVideoWidth} height={maxVideoHeight}></Image>
+      </div>
+      
       <button 
         disabled={processing} 
-        style={{ width: maxVideoSize, padding: 10 }} 
+        style={{ width: maxVideoWidth, padding: 10 }} 
         onClick={onClick}
       >
         {processing ? 'Processing...' : 'Take a photo'}
       </button>
       <canvas
         ref={canvasEl}
-        width={maxVideoSize}
-        height={maxVideoSize}
+        width={maxVideoWidth/2}
+        height={maxVideoHeight/2}
       ></canvas>
     </div>
   )
