@@ -1,54 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import cv from '../services/cv'
 
 import './index.css'
 import Image from 'next/image'
 
-// We'll limit the processing size to 200px.
 const maxVideoWidth = 800
 const maxVideoHeight = 600
 
 export default function Page() {
-  const [processing, setProcessing] = useState(false)
   const videoElement = useRef(null)
-  const canvasEl = useRef(null)
-
-  async function processImage() {
-    setProcessing(true)
-
-    const ctx = canvasEl.current.getContext('2d')
-    ctx.drawImage(videoElement.current, 0, 0, maxVideoWidth, maxVideoHeight)
-    const image = ctx.getImageData(0, 0, maxVideoWidth, maxVideoHeight)
-    // Load the model
-    await cv.load()
-    // Processing image
-    const processedImage = await cv.imageProcessing(image)
-    // Render the processed image to the canvas
-    ctx.putImageData(processedImage.data.payload, 0, 0)
-    setProcessing(false)
-  }
-
-  /**
-   * What we will do in the onClick event is capture a frame within
-   * the video to pass this image on our service.
-   */
-  async function onClick() {
-    setProcessing(true)
-
-    const videoCtx = canvasEl.current.getContext('2d');
-    videoCtx.ontimeupdate = (event) => {
-      console.log('The currentTime attribute has been updated. Again.');
-    };
-
-    this.processImage();
-  }
-
+  
   /**
    * In the useEffect hook what we are going to do is load the video
    * element so that it plays what you see on the camera. This way
    * it's like a viewer of what the camera sees and then at any
-   * time we can capture a frame to take a picture and upload it
-   * to OpenCV.
+   * time we can capture a frame to take a picture.
    */
   useEffect(() => {
     async function setupCamera() {
@@ -91,15 +56,8 @@ export default function Page() {
    * What we're going to render is:
    *
    * 1. A video component for the user to see what he sees on the camera.
-   *
-   * 2. A simple button, that with the onClick we will generate an image of
-   *  the video, we will load OpenCV and we will treat the image.
-   *
-   * 3. A canvas, which will allow us to capture the image of the video
-   * while showing the user what image has been taken from the video after
-   * pressing the button.
-   *
-   */
+   * 2. A overlay image
+   * */
   return (
     <div
       style={{
@@ -113,19 +71,6 @@ export default function Page() {
         <video className="video" playsInline ref={videoElement} />
         <Image src="/tiger.jpg" alt="Avatar" className="image" width={maxVideoWidth} height={maxVideoHeight}></Image>
       </div>
-      
-      <button 
-        disabled={processing} 
-        style={{ width: maxVideoWidth, padding: 10 }} 
-        onClick={onClick}
-      >
-        {processing ? 'Processing...' : 'Take a photo'}
-      </button>
-      <canvas
-        ref={canvasEl}
-        width={maxVideoWidth/2}
-        height={maxVideoHeight/2}
-      ></canvas>
     </div>
   )
 }

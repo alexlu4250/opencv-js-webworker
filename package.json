@@ -1,14 +1,15 @@
 {
   "name": "opencv-web",
-  "homepage": "http://alexlu4250.github.io/opencv-js-webworker",
+  "homepage": "http://alexlu4250.github.io/opencv-js-webworker/",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next export",
     "start": "next start",
-    "predeploy": "next build && next export && touch out/.nojekyll",
-    "deploy": "gh-pages -d out -t"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out"
   },
   "dependencies": {
     "gh-pages": "^2.2.0",
