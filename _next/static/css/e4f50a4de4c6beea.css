@@ -1,0 +1,1 @@
+.video-wrapper{perspective:1000px;position:relative}video{-webkit-transform:scaleX(-1);-moz-transform:scaleX(-1);transform:scaleX(-1)}.image,video{width:100%;height:auto;position:absolute}.image{z-index:30000;opacity:.4}
